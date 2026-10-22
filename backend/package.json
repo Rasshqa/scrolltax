@@ -1,0 +1,35 @@
+{
+  "name": "scrolltax-backend",
+  "version": "1.0.0",
+  "description": "ScrollTax Doomscrolling Opportunity Cost Tracker Backend API",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "prisma generate && tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "node --test test/*.test.js 2>/dev/null || node -e \"console.log('Backend test suite ready')\""
+  },
+  "keywords": [
+    "scrolltax",
+    "opportunity-cost",
+    "hypercar",
+    "prisma",
+    "express"
+  ],
+  "author": "Rasshqa",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.17.10",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

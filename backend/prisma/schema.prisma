@@ -1,0 +1,60 @@
+// ponytail: Standard Prisma schema matching TRD exactly with User, ScrollLog, Squad, SquadMember.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String         @id @default(cuid())
+  email           String         @unique
+  username        String         @unique
+  avatarUrl       String?
+  primaryGoal     String         @default("Ship Portfolio Project")
+  goalUnitName    String         @default("Modules Built")
+  minutesPerUnit  Int            @default(120)
+  dailyLimitMins  Int            @default(60)
+  createdAt       DateTime       @default(now())
+  scrollLogs      ScrollLog[]
+  squadMembers    SquadMember[]
+}
+
+model ScrollLog {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime @db.Date
+  totalScrollMins Int      @default(0)
+  appBreakdown    Json     // {"TikTok": 65, "Instagram": 40, "X": 20, "YouTube": 15}
+  codeLinesLost   Int      @default(0)
+  goalUnitsLost   Float    @default(0.0)
+  taxPenaltyIdr   Int      @default(0)
+  syncedAt        DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model Squad {
+  id          String        @id @default(cuid())
+  name        String
+  inviteCode  String        @unique // 6-char uppercase alphanumeric
+  weeklyGoal  Int           @default(300) // Max mins per week target
+  createdAt   DateTime      @default(now())
+  members     SquadMember[]
+}
+
+model SquadMember {
+  id        String   @id @default(cuid())
+  squadId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+  squad     Squad    @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, userId])
+}
