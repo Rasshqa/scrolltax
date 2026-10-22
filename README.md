@@ -78,6 +78,16 @@ Given total daily doomscrolling duration in minutes ($T$):
 
 ---
 
+## Key Interactive Features
+
+- **Tachometer RPM Gauge with 5-LED Rev-Limiter:** CustomPainter tachometer arc featuring an F1-style 5-LED shift-light bar that shifts from green to amber and flashes red when reaching the 180m+ redline zone.
+- **Interactive Telemetry Slider & Quick Jump Presets:** Smooth slider spanning 0 to 360 minutes, with 1-click jump pills (`0m Zero`, `+15m`, `+30m`, `+60m`, `180m Redline`, `360m Max`) for rapid simulation.
+- **Real-Time Burn Rate & Overdraft HUD:** Live tracking of hourly opportunity cost accrual (Rp 90,000/hour), severity tiers, and real-time budget deficit delta.
+- **9:16 Serrated Thermal Receipt:** Dual-skin thermal receipt (Matte Paper and Stealth Carbon) with custom clipped zigzag edges, Code128 barcode, app breakdown, and PNG image export.
+- **Squad Leaderboard & Top 3 Podium:** Multiplayer competition ranking racers by lowest screen time, featuring an elevated Top 3 podium with Gold, Silver, and Bronze trophies, pacesetter badges, and live sync to the Prisma/PostgreSQL backend.
+
+---
+
 ## Design System: Hypercar Telemetry
 
 - **Deep Obsidian Background:** `#070709`
