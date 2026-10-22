@@ -367,6 +367,69 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           Text('360m', style: HypercarTheme.monoStyle(fontSize: 10, color: HypercarColors.textMuted)),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      // Quick Telemetry Jump Shortcuts
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildPresetChip('0m (Zero)', () => notifier.setSimulatorMinutes(0)),
+                            const SizedBox(width: 6),
+                            _buildPresetChip('+15m', () => notifier.setSimulatorMinutes((telemetry.totalScrollMinutes + 15).clamp(0, 360))),
+                            const SizedBox(width: 6),
+                            _buildPresetChip('+30m', () => notifier.setSimulatorMinutes((telemetry.totalScrollMinutes + 30).clamp(0, 360))),
+                            const SizedBox(width: 6),
+                            _buildPresetChip('+60m', () => notifier.setSimulatorMinutes((telemetry.totalScrollMinutes + 60).clamp(0, 360))),
+                            const SizedBox(width: 6),
+                            _buildPresetChip('180m Redline', () => notifier.setSimulatorMinutes(180), isAccent: true),
+                            const SizedBox(width: 6),
+                            _buildPresetChip('360m Max', () => notifier.setSimulatorMinutes(360)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                // Real-time Telemetry HUD (Burn Rate & Overdraft)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: HypercarColors.carbonElevated,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: HypercarColors.carbonBorder),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildTelemetryHudItem(
+                        label: 'HOURLY BURN',
+                        value: 'Rp 90k/h',
+                        color: HypercarColors.solarOrange,
+                        subtext: 'Rp 1,500/min',
+                      ),
+                      Container(width: 1, height: 32, color: HypercarColors.carbonBorder),
+                      _buildTelemetryHudItem(
+                        label: 'DEFICIT TIER',
+                        value: calc.severityTier.shortLabel,
+                        color: calc.severityTier.color,
+                        subtext: '${calc.linesOfCodeLost} LOC unwritten',
+                      ),
+                      Container(width: 1, height: 32, color: HypercarColors.carbonBorder),
+                      _buildTelemetryHudItem(
+                        label: 'BUDGET DELTA',
+                        value: telemetry.totalScrollMinutes > telemetry.goalSettings.dailyLimitMinutes
+                            ? '+${telemetry.totalScrollMinutes - telemetry.goalSettings.dailyLimitMinutes}m'
+                            : '${telemetry.goalSettings.dailyLimitMinutes - telemetry.totalScrollMinutes}m ok',
+                        color: telemetry.totalScrollMinutes > telemetry.goalSettings.dailyLimitMinutes
+                            ? HypercarColors.laserRed
+                            : HypercarColors.matrixGreen,
+                        subtext: telemetry.totalScrollMinutes > telemetry.goalSettings.dailyLimitMinutes
+                            ? 'Overdraft'
+                            : 'Within Budget',
+                      ),
                     ],
                   ),
                 ),
@@ -615,6 +678,78 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPresetChip(String label, VoidCallback onTap, {bool isAccent = false}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 44, minWidth: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isAccent
+              ? HypercarColors.laserRed.withValues(alpha: 0.15)
+              : HypercarColors.carbonElevated,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isAccent
+                ? HypercarColors.laserRed
+                : HypercarColors.carbonBorder,
+            width: isAccent ? 1.2 : 0.8,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: HypercarTheme.monoStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: isAccent ? HypercarColors.laserRed : HypercarColors.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTelemetryHudItem({
+    required String label,
+    required String value,
+    required Color color,
+    required String subtext,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: HypercarTheme.monoStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            color: HypercarColors.textMuted,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: color,
+            fontFamily: 'Space Grotesk',
+          ),
+        ),
+        const SizedBox(height: 1),
+        Text(
+          subtext,
+          style: HypercarTheme.monoStyle(
+            fontSize: 8.5,
+            color: HypercarColors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 }

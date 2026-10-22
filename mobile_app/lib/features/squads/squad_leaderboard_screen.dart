@@ -348,6 +348,13 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
 
                     const SizedBox(height: 16),
 
+                    const SizedBox(height: 16),
+
+                    if (members.length >= 2) ...[
+                      _buildTopThreePodium(members, squad.weeklyGoal),
+                      const SizedBox(height: 16),
+                    ],
+
                     Text(
                       'DISCIPLINE RANKINGS',
                       style: HypercarTheme.monoStyle(
@@ -363,21 +370,36 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
                     // Ranked Member List
                     ...members.map((member) {
                       final isFirst = member.rank == 1;
+                      final isSecond = member.rank == 2;
+                      final isThird = member.rank == 3;
+                      final isCurrentUser = member.userId == 'user_current' || member.username.toLowerCase().contains('you');
                       final isOverGoal = member.weeklyScrollMinutes > squad.weeklyGoal;
+
+                      final rankColor = isFirst
+                          ? const Color(0xFFFFB800)
+                          : isSecond
+                              ? const Color(0xFFE2E8F0)
+                              : isThird
+                                  ? const Color(0xFFCD7F32)
+                                  : HypercarColors.textMuted;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: HypercarColors.carbonSurface,
+                          color: isCurrentUser
+                              ? HypercarColors.cyberCyan.withValues(alpha: 0.05)
+                              : HypercarColors.carbonSurface,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isFirst
-                                ? HypercarColors.matrixGreen
-                                : isOverGoal
-                                    ? HypercarColors.laserRed.withValues(alpha: 0.4)
-                                    : HypercarColors.carbonBorder,
-                            width: isFirst ? 1.5 : 1.0,
+                            color: isCurrentUser
+                                ? HypercarColors.cyberCyan
+                                : isFirst
+                                    ? const Color(0xFFFFB800).withValues(alpha: 0.8)
+                                    : isOverGoal
+                                        ? HypercarColors.laserRed.withValues(alpha: 0.4)
+                                        : HypercarColors.carbonBorder,
+                            width: isCurrentUser || isFirst ? 1.5 : 1.0,
                           ),
                         ),
                         child: Row(
@@ -387,12 +409,10 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: isFirst
-                                    ? HypercarColors.matrixGreen.withValues(alpha: 0.2)
-                                    : HypercarColors.carbonElevated,
+                                color: rankColor.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: isFirst ? HypercarColors.matrixGreen : HypercarColors.carbonBorder,
+                                  color: rankColor.withValues(alpha: 0.6),
                                 ),
                               ),
                               alignment: Alignment.center,
@@ -401,7 +421,7 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
                                 style: HypercarTheme.monoStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
-                                  color: isFirst ? HypercarColors.matrixGreen : HypercarColors.textSecondary,
+                                  color: rankColor,
                                 ),
                               ),
                             ),
@@ -416,26 +436,46 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
                                     children: [
                                       Text(
                                         member.username,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 14,
+                                          color: isCurrentUser ? HypercarColors.cyberCyan : HypercarColors.textPrimary,
                                           fontFamily: 'Space Grotesk',
                                         ),
                                       ),
+                                      if (isCurrentUser) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                          decoration: BoxDecoration(
+                                            color: HypercarColors.cyberCyan.withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(3),
+                                            border: Border.all(color: HypercarColors.cyberCyan.withValues(alpha: 0.5)),
+                                          ),
+                                          child: Text(
+                                            'YOU',
+                                            style: HypercarTheme.monoStyle(
+                                              fontSize: 8,
+                                              fontWeight: FontWeight.bold,
+                                              color: HypercarColors.cyberCyan,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                       if (isFirst) ...[
                                         const SizedBox(width: 6),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                           decoration: BoxDecoration(
-                                            color: HypercarColors.matrixGreen.withValues(alpha: 0.15),
+                                            color: const Color(0xFFFFB800).withValues(alpha: 0.15),
                                             borderRadius: BorderRadius.circular(3),
                                           ),
                                           child: Text(
-                                            'DISCIPLINED',
+                                            'PACESETTER',
                                             style: HypercarTheme.monoStyle(
                                               fontSize: 8,
                                               fontWeight: FontWeight.bold,
-                                              color: HypercarColors.matrixGreen,
+                                              color: const Color(0xFFFFB800),
                                             ),
                                           ),
                                         ),
@@ -464,7 +504,7 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
                                     color: isFirst
-                                        ? HypercarColors.matrixGreen
+                                        ? const Color(0xFFFFB800)
                                         : isOverGoal
                                             ? HypercarColors.laserRed
                                             : HypercarColors.textPrimary,
@@ -490,6 +530,129 @@ class _SquadLeaderboardScreenState extends ConsumerState<SquadLeaderboardScreen>
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildTopThreePodium(List<SquadLeaderboardEntry> members, int weeklyGoal) {
+    final first = members.firstWhere((m) => m.rank == 1, orElse: () => members[0]);
+    final second = members.length > 1 ? members.firstWhere((m) => m.rank == 2, orElse: () => members[1]) : null;
+    final third = members.length > 2 ? members.firstWhere((m) => m.rank == 3, orElse: () => members[2]) : null;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      decoration: BoxDecoration(
+        color: HypercarColors.carbonElevated,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: HypercarColors.carbonBorder),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'SQUAD PODIUM',
+                style: HypercarTheme.monoStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: HypercarColors.textMuted,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const Icon(Icons.emoji_events_rounded, size: 16, color: Color(0xFFFFB800)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              if (second != null)
+                _buildPodiumStep(
+                  rank: 2,
+                  member: second,
+                  color: const Color(0xFFE2E8F0),
+                  height: 70,
+                ),
+              _buildPodiumStep(
+                rank: 1,
+                member: first,
+                color: const Color(0xFFFFB800),
+                height: 95,
+                isCrown: true,
+              ),
+              if (third != null)
+                _buildPodiumStep(
+                  rank: 3,
+                  member: third,
+                  color: const Color(0xFFCD7F32),
+                  height: 55,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPodiumStep({
+    required int rank,
+    required SquadLeaderboardEntry member,
+    required Color color,
+    required double height,
+    bool isCrown = false,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isCrown)
+          const Icon(Icons.workspace_premium_rounded, color: Color(0xFFFFB800), size: 20)
+        else
+          Icon(Icons.shield_outlined, color: color, size: 16),
+        const SizedBox(height: 4),
+        SizedBox(
+          width: 80,
+          child: Text(
+            member.username,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Space Grotesk',
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '${member.weeklyScrollMinutes}m',
+          style: HypercarTheme.monoStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: 72,
+          height: height,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            border: Border.all(color: color.withValues(alpha: 0.5)),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '#$rank',
+            style: HypercarTheme.monoStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

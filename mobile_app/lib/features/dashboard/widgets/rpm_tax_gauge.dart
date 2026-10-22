@@ -85,23 +85,58 @@ class _RpmTaxGaugeState extends State<RpmTaxGauge> with SingleTickerProviderStat
                     activeColor: severity.color,
                   ),
                 ),
-                Positioned(
-                  bottom: 12,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${_displayedMinutes.round()}',
-                        style: TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.w800,
-                          color: severity.color,
-                          letterSpacing: -1,
-                          height: 1.0,
-                          fontFamily: 'Space Grotesk',
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
+                    Positioned(
+                      bottom: 12,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 5-LED Rev-Limiter Shift Light Bar
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(5, (index) {
+                              const thresholds = [15, 30, 60, 120, 180];
+                              const colors = [
+                                HypercarColors.matrixGreen,
+                                HypercarColors.matrixGreen,
+                                HypercarColors.amberWarning,
+                                HypercarColors.solarOrange,
+                                HypercarColors.laserRed,
+                              ];
+                              final isActive = _displayedMinutes >= thresholds[index];
+                              final isRedline = index == 4 && isActive;
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: isActive ? colors[index] : HypercarColors.carbonBorder,
+                                  shape: BoxShape.circle,
+                                  boxShadow: isActive
+                                      ? [
+                                          BoxShadow(
+                                            color: colors[index].withValues(alpha: isRedline ? 0.9 : 0.6),
+                                            blurRadius: isRedline ? 8 : 4,
+                                            spreadRadius: isRedline ? 1 : 0,
+                                          )
+                                        ]
+                                      : null,
+                                ),
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${_displayedMinutes.round()}',
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.w800,
+                              color: severity.color,
+                              letterSpacing: -1,
+                              height: 1.0,
+                              fontFamily: 'Space Grotesk',
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
                       const SizedBox(height: 2),
                       Row(
                         mainAxisSize: MainAxisSize.min,
